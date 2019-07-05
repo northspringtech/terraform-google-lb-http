@@ -27,8 +27,8 @@ resource "google_compute_global_forwarding_rule" "https_v4" {
 
 resource "google_compute_global_address" "default_v4" {
   project    = "${var.project}"
-  name       = "${var.name}-address"
-  ip_version = "IPv4"
+  name       = "${var.name}-address-v4"
+  ip_version = "IPV4"
 }
 
 # IPv6
@@ -42,16 +42,10 @@ resource "google_compute_global_forwarding_rule" "https_v6" {
   depends_on = ["google_compute_global_address.default_v6"]
 }
 
-resource "google_compute_global_address" "default_v4" {
-  project    = "${var.project}"
-  name       = "${var.name}-address-v4"
-  ip_version = "IPv4"
-}
-
 resource "google_compute_global_address" "default_v6" {
   project    = "${var.project}"
   name       = "${var.name}-address-v6"
-  ip_version = "v6"
+  ip_version = "IPV6"
 }
 
 # HTTPS proxy  when ssl is true
@@ -101,6 +95,9 @@ resource "google_compute_http_health_check" "default" {
   name         = "${var.name}-backend-${count.index}"
   request_path = "${element(split(",", element(var.backend_params, count.index)), 0)}"
   port         = "${element(split(",", element(var.backend_params, count.index)), 2)}"
+  check_interval_sec = 10
+  unhealthy_threshold = 6
+  timeout_sec = 10
 }
 
 # Create firewall rule for each backend in each network specified, uses mod behavior of element().
