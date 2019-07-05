@@ -66,6 +66,7 @@ resource "google_compute_ssl_certificate" "default" {
 
   lifecycle = {
     create_before_destroy = true
+    ignore_changes = ["private_key", "certificate"]
   }
 }
 
