@@ -14,38 +14,44 @@
  * limitations under the License.
  */
 
-resource "google_compute_global_forwarding_rule" "http" {
-  project    = "${var.project}"
-  count      = "${var.http_forward ? 1 : 0}"
-  name       = "${var.name}"
-  target     = "${google_compute_target_http_proxy.default.self_link}"
-  ip_address = "${google_compute_global_address.default.address}"
-  port_range = "80"
-  depends_on = ["google_compute_global_address.default"]
-}
-
-resource "google_compute_global_forwarding_rule" "https" {
+# IPv4
+resource "google_compute_global_forwarding_rule" "https_v4" {
   project    = "${var.project}"
   count      = "${var.ssl ? 1 : 0}"
-  name       = "${var.name}-https"
+  name       = "${var.name}-https-v4"
   target     = "${google_compute_target_https_proxy.default.self_link}"
-  ip_address = "${google_compute_global_address.default.address}"
+  ip_address = "${google_compute_global_address.default_v4.address}"
   port_range = "443"
-  depends_on = ["google_compute_global_address.default"]
+  depends_on = ["google_compute_global_address.default_v4"]
 }
 
-resource "google_compute_global_address" "default" {
+resource "google_compute_global_address" "default_v4" {
   project    = "${var.project}"
   name       = "${var.name}-address"
-  ip_version = "${var.ip_version}"
+  ip_version = "IPv4"
 }
 
-# HTTP proxy when ssl is false
-resource "google_compute_target_http_proxy" "default" {
-  project = "${var.project}"
-  count   = "${var.http_forward ? 1 : 0}"
-  name    = "${var.name}-http-proxy"
-  url_map = "${element(compact(concat(list(var.url_map), google_compute_url_map.default.*.self_link)), 0)}"
+# IPv6
+resource "google_compute_global_forwarding_rule" "https_v6" {
+  project    = "${var.project}"
+  count      = "${var.ssl ? 1 : 0}"
+  name       = "${var.name}-https-v6"
+  target     = "${google_compute_target_https_proxy.default.self_link}"
+  ip_address = "${google_compute_global_address.default_v6.address}"
+  port_range = "443"
+  depends_on = ["google_compute_global_address.default_v6"]
+}
+
+resource "google_compute_global_address" "default_v4" {
+  project    = "${var.project}"
+  name       = "${var.name}-address-v4"
+  ip_version = "IPv4"
+}
+
+resource "google_compute_global_address" "default_v6" {
+  project    = "${var.project}"
+  name       = "${var.name}-address-v6"
+  ip_version = "v6"
 }
 
 # HTTPS proxy  when ssl is true

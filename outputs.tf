@@ -19,7 +19,12 @@ output backend_services {
   value       = "${google_compute_backend_service.default.*.self_link}"
 }
 
-output external_ip {
-  description = "The external IP assigned to the global fowarding rule."
-  value       = "${google_compute_global_address.default.address}"
+output external_ip_v4 {
+  description = "The external IPv4 assigned to the global fowarding rule."
+  value       = "${google_compute_global_address.default_v4.address}"
+}
+
+output external_ip_v6 {
+  description = "The external IPv6 assigned to the global fowarding rule."
+  value       = "${google_compute_global_address.default_v6.address}"
 }
