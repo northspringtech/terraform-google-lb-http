@@ -15,6 +15,16 @@
  */
 
 # IPv4
+resource "google_compute_global_forwarding_rule" "http_v4" {
+  project    = "${var.project}"
+  count      = "${var.http_forward ? 1 : 0}"
+  name       = "${var.name}-http-v4"
+  target     = "${google_compute_target_http_proxy.default.self_link}"
+  ip_address = "${google_compute_global_address.default_v4.address}"
+  port_range = "80"
+  depends_on = ["google_compute_global_address.default_v4"]
+}
+
 resource "google_compute_global_forwarding_rule" "https_v4" {
   project    = "${var.project}"
   count      = "${var.ssl ? 1 : 0}"
@@ -32,6 +42,16 @@ resource "google_compute_global_address" "default_v4" {
 }
 
 # IPv6
+resource "google_compute_global_forwarding_rule" "http_v6" {
+  project    = "${var.project}"
+  count      = "${var.http_forward ? 1 : 0}"
+  name       = "${var.name}-http-v6"
+  target     = "${google_compute_target_http_proxy.default.self_link}"
+  ip_address = "${google_compute_global_address.default_v6.address}"
+  port_range = "80"
+  depends_on = ["google_compute_global_address.default_v6"]
+}
+
 resource "google_compute_global_forwarding_rule" "https_v6" {
   project    = "${var.project}"
   count      = "${var.ssl ? 1 : 0}"
@@ -46,6 +66,13 @@ resource "google_compute_global_address" "default_v6" {
   project    = "${var.project}"
   name       = "${var.name}-address-v6"
   ip_version = "IPV6"
+}
+
+resource "google_compute_target_http_proxy" "default" {
+  project = "${var.project}"
+  count   = "${var.http_forward ? 1 : 0}"
+  name    = "${var.name}-http-proxy"
+  url_map = "${element(compact(concat(list(var.url_map), google_compute_url_map.default.*.self_link)), 0)}"
 }
 
 # HTTPS proxy  when ssl is true
