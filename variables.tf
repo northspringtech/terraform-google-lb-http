@@ -85,6 +85,16 @@ variable ssl {
   default     = false
 }
 
+variable use_managed_ssl_certificate {
+  description = "If true, use Google managed auto-provisioned SSL certificate"
+  default     = false
+}
+
+variable domain {
+  description = "The domain for which to auto-provision an SSL certificate. Required if `ssl` and `use_managed_ssl_certificate` are `true`."
+  default     = "example.org."
+}
+
 variable private_key {
   description = "Content of the private SSL key. Required if `ssl` is `true` and `ssl_certificates` is empty."
   default     = ""

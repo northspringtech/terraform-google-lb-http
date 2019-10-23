@@ -81,12 +81,12 @@ resource "google_compute_target_https_proxy" "default" {
   count            = "${var.ssl ? 1 : 0}"
   name             = "${var.name}-https-proxy"
   url_map          = "${element(compact(concat(list(var.url_map), google_compute_url_map.default.*.self_link)), 0)}"
-  ssl_certificates = ["${compact(concat(var.ssl_certificates, google_compute_ssl_certificate.default.*.self_link))}"]
+  ssl_certificates = ["${compact(concat(var.ssl_certificates, google_compute_ssl_certificate.default.*.self_link, google_compute_managed_ssl_certificate.default.*.self_link))}"]
 }
 
 resource "google_compute_ssl_certificate" "default" {
   project     = "${var.project}"
-  count       = "${(var.ssl && !var.use_ssl_certificates) ? 1 : 0}"
+  count       = "${(var.ssl && !var.use_ssl_certificates && !var.use_managed_ssl_certificate) ? 1 : 0}"
   name_prefix = "${var.name}-certificate-"
   private_key = "${var.private_key}"
   certificate = "${var.certificate}"
@@ -94,6 +94,15 @@ resource "google_compute_ssl_certificate" "default" {
   lifecycle = {
     create_before_destroy = true
     ignore_changes = ["private_key", "certificate"]
+  }
+}
+
+resource "google_compute_managed_ssl_certificate" "default" {
+  provider = "google-beta"
+  name = "${var.name}-certificate"
+  count = "${(var.ssl && var.use_managed_ssl_certificate) ? 1 : 0}"
+  managed {
+    domains = ["${var.domain}"]
   }
 }
 
