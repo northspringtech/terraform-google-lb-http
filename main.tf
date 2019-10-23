@@ -99,7 +99,7 @@ resource "google_compute_ssl_certificate" "default" {
 
 resource "google_compute_managed_ssl_certificate" "default" {
   provider = "google-beta"
-  name = "${var.name}-certificate"
+  name = "${var.name}-managed-certificate"
   count = "${(var.ssl && var.use_managed_ssl_certificate) ? 1 : 0}"
   managed {
     domains = ["${var.domain}"]
